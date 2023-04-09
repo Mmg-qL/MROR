@@ -12,3 +12,4 @@
         cd build
         cmake ..
         make
+        ./MROR
