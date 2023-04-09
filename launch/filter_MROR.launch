@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+
+<launch>
+
+<node pkg="rosbag" type="play" name="player" output="log" args="-l /usr/file/cadc_devkit/CADCD_2019_02_27_seq_0051" />
+<node pkg="MROR_filter" type="dynamicMROR" name="filter_MROR" output="screen"/>
+    <param name="/MROR/inputTopic" value="/cadcd/velo/pointcloud" type="string" />
+    <param name="/MROR/min_Neighbours" value="3" type="int" />
+    <param name="/MROR/radius_multiplier" value="3" type="double" />
+    <param name="/MROR/azimuth_angle" value="0.16" type="double" />
+    <param name="/MROR/min_search_radius" value="0.04" type="double" />
+    <param name="/MROR/write_to_kitty_format" value="true" type="bool" />
+    <param name="/MROR/output_directory" value="/home/gmm/snowyweather/MROR_Results" type="string" />
+
+<!--Run rviz-->
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find MROR_filter)/config/rviz_config.rviz" />
+
+</launch>

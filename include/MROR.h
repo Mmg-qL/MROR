@@ -1,3 +1,4 @@
+#pragma once
 #include <iostream>
 #include <cmath>
 #include <pcl/kdtree/kdtree_flann.h>
@@ -9,21 +10,23 @@
 #include <eigen3/Eigen/Dense>
 #include <string.h>
 using namespace std;
-using namespace pcl;
 
 class MROR{
 public:
 	MROR() = default;
 	~MROR() = default;
-	/*
+	
 	void SetRadius(double radius_multiplier);
     double GetRadius();
     void SetAngle(double azimuth_angle);
-    void GetAngle();
+    double GetAngle();
     void SetMinNeighbors(double min_neighbors);
     double GetMinNeighbors();
     void SetMinRadius(double min_search_radius);
-    double GetMinSearchRadius();*/
+    double GetMinSearchRadius();
+	void SetKSearch(double KSearch);
+	double GetKSearch();
+	void SetMaDistance(double min_madistance);
 
 	template<typename T>
 	void Filter(typename pcl::PointCloud<T>::Ptr& input_cloud,
@@ -32,16 +35,14 @@ public:
 	float getMahalanobisDistance(const T& centerpoint,
 		                         vector<int>& pointIndex,
 								 typename pcl::PointCloud<T>& input_cloud);
-	template<typename T>
-	void pcdVisualization(typename pcl::PointCloud<T>::Ptr& input_cloud);
 
 private:
     	double radius_multiplier_{3};
     	double azimuth_angle_{0.04};
     	double min_neighbors_{3};
     	double min_search_radius_{0.04};
-    	int KSearch_{4};
-		double min_madistance{0.5};
+    	double KSearch_{4};
+		double min_madistance_{0.4};
 };
 
 template<typename T>
@@ -67,7 +68,7 @@ void MROR::Filter(typename pcl::PointCloud<T>::Ptr& input_cloud, typename pcl::P
         	if(search_radius_dynamic < min_search_radius_){  
 				kd_tree_->nearestKSearch(*it, KSearch_, pointIndxKNNSearch, pointSquareDistance);
 				float m_distance = getMahalanobisDistance<T>(*it, pointIndxKNNSearch, *input_cloud);
-				if(m_distance < min_madistance){
+				if(m_distance < min_madistance_){
 					filtered_cloud.push_back(*it);
 				}
             }else{	//基于RadiusNN的判定
@@ -77,23 +78,6 @@ void MROR::Filter(typename pcl::PointCloud<T>::Ptr& input_cloud, typename pcl::P
 				}
 	    }
     }
-}
-
-template<typename T>
-void MROR::pcdVisualization(typename pcl::PointCloud<T>::Ptr &input_cloud)
-{
-    /*遍历输出 各点云的内容*/
-    // for(size_t i=0; i < cloud->points.size(); ++i)
-    // {
-    //     std::cout<<"    "
-    //     << cloud->points[i].x
-    //     <<" "<<cloud->points[i].y
-    //     <<" "<<cloud->points[i].z<<std::endl;
-    // }
-    pcl::visualization::CloudViewer viewer("MROR pcd viewer");
-    viewer.showCloud(input_cloud);
-    std::cout << "PCL Test OK!\n";
-    pause();
 }
 
 template<typename T>
@@ -136,26 +120,7 @@ float MROR::getMahalanobisDistance(const T& centerpoint, vector<int>& pointIndex
 		mm << (centerpoint.x - x_mean), (centerpoint.y - y_mean);
 		tmp = mm.transpose() * cov.inverse() * mm;
 		ans = sqrt(sqrt(tmp(0, 0)));
-		cout << "马氏距离为：" << ans << endl;
+		// cout << "马氏距离为：" << ans << endl;
 	}
 	return ans;
 }
-
-int main(int argc, char**){
-	//读取点云数据
-    pcl::PointCloud<pcl::PointXYZ>::Ptr input_cloud(new pcl::PointCloud<pcl::PointXYZ>);		//输入的点云
-    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered(new pcl::PointCloud<pcl::PointXYZ>);		//滤波后的点云
-	string path = "/home/gmm/snowyweather/Lidar_pcd/20.pcd";
-	//读取错误提示
-    if(pcl::io::loadPCDFile<pcl::PointXYZ>(path, *input_cloud)==-1)
-    {    
-        PCL_ERROR("Couldn't read file pcd \n");
-        return  (-1);
-    }
-	//点云滤波
-    MROR outstream;
-    outstream.Filter<pcl::PointXYZ>(input_cloud, *cloud_filtered);
-    outstream.pcdVisualization<pcl::PointXYZ>(cloud_filtered);			
-	return 0;
-}
-
