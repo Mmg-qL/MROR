@@ -8,7 +8,8 @@
 
 2. cmake编译运行
 
+        roscore
         cd MROR
         catkin_make
-        source devel/bashrc
-        roslaunch MROR_filter dynamicMROR.launch
+        source devel/setup.bash
+        roslaunch MROR dynamicMROR.launch
