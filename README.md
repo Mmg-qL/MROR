@@ -4,12 +4,9 @@
 
 ### 二、如何使用
 
-1.      git clone git@github.com:Mmg-qL/MROR.git
-
-2. cmake编译运行
-
-        roscore
-        cd MROR
-        catkin_make
-        source devel/setup.bash
-        roslaunch MROR dynamicMROR.launch
+       git clone git@github.com:Mmg-qL/MROR.git
+       roscore
+       cd MROR
+       catkin_make
+       source devel/setup.bash
+       roslaunch MROR dynamicMROR.launch
